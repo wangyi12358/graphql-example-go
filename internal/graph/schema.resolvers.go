@@ -7,10 +7,15 @@ package graph
 import (
 	"context"
 	"go-gin-example/internal/graph/graph_model"
+	"go-gin-example/pkg/validate"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input graph_model.CreateUser) (*graph_model.User, error) {
+	err := validate.Validate.Struct(input)
+	if err != nil {
+		return nil, validate.JoinValidateErrors(err)
+	}
 	user, err := r.UserService.Create(&input)
 	if err != nil {
 		return nil, err

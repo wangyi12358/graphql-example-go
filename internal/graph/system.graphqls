@@ -92,9 +92,9 @@ input UsersInput {
 input CreateUser {
   username: String!
   nickname: String!
+  password: String! @constraint(validate: "max=16,min=6", name: "密码")
   phone: String!
   gender: Int!
   remark: String
-  email: String!
-  password: String!
+  email: String! @constraint(validate: "email", name: "邮箱")
 }

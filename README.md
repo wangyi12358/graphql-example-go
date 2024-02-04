@@ -25,5 +25,6 @@ $ make gen-db-model
 - [x] 生成数据库 Model
 - [x] Restful API
 - [x] GraphQL API
+- [x] validator 参数校验
 - [ ] 全局 panic 捕获
 - [ ] 定时任务

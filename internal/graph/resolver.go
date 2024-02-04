@@ -1,5 +1,8 @@
 package graph
 
+//go:generate go get -d github.com/99designs/gqlgen
+//go:generate go run generate.go
+
 import (
 	"context"
 	"github.com/gin-gonic/gin"

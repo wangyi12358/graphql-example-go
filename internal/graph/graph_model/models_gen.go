@@ -27,11 +27,11 @@ type CreateLovField struct {
 type CreateUser struct {
 	Username string  `json:"username"`
 	Nickname string  `json:"nickname"`
+	Password string  `json:"password" validate:"max=16,min=6" name:"密码"`
 	Phone    string  `json:"phone"`
 	Gender   int     `json:"gender"`
 	Remark   *string `json:"remark,omitempty"`
-	Email    string  `json:"email"`
-	Password string  `json:"password"`
+	Email    string  `json:"email" validate:"email" name:"邮箱"`
 }
 
 type Lov struct {
