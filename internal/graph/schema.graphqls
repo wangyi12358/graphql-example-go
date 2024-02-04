@@ -1,0 +1,18 @@
+input Pagination {
+  "页码"
+  current: Int!
+  "每页数量"
+  pageSize: Int!
+}
+
+type Query {
+  users(pagination: Pagination!, usersInput: UsersInput): Users!
+  lovPage(pagination: Pagination!, lovPageInput: LovPageInput): LovPage!
+  lovFields: [LovField!]!
+}
+
+type Mutation {
+  createUser(input: CreateUser!): User!
+  createLov(input: CreateLov!): Lov!
+  createLovField(input: CreateLovField!): LovField!
+}
