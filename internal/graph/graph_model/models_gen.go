@@ -17,7 +17,7 @@ type CreateLovField struct {
 	// 描述
 	Desc *string `json:"desc,omitempty"`
 	// 值
-	Value string `json:"value"`
+	Value int `json:"value"`
 	// 状态
 	Status int `json:"status"`
 	// lovId
@@ -51,7 +51,7 @@ type LovField struct {
 	// 描述
 	Desc *string `json:"desc,omitempty"`
 	// 值
-	Value string `json:"value"`
+	Value int `json:"value"`
 	// 状态
 	Status int `json:"status"`
 }

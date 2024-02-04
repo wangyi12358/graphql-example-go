@@ -71,10 +71,12 @@ type ComplexityRoot struct {
 		CreateLov      func(childComplexity int, input graph_model.CreateLov) int
 		CreateLovField func(childComplexity int, input graph_model.CreateLovField) int
 		CreateUser     func(childComplexity int, input graph_model.CreateUser) int
+		DeleteLov      func(childComplexity int, id int) int
 	}
 
 	Query struct {
-		LovFields func(childComplexity int) int
+		FindLov   func(childComplexity int, id int) int
+		LovFields func(childComplexity int, lovID int) int
 		LovPage   func(childComplexity int, pagination graph_model.Pagination, lovPageInput *graph_model.LovPageInput) int
 		Users     func(childComplexity int, pagination graph_model.Pagination, usersInput *graph_model.UsersInput) int
 	}
@@ -101,12 +103,14 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input graph_model.CreateUser) (*graph_model.User, error)
 	CreateLov(ctx context.Context, input graph_model.CreateLov) (*graph_model.Lov, error)
+	DeleteLov(ctx context.Context, id int) (bool, error)
 	CreateLovField(ctx context.Context, input graph_model.CreateLovField) (*graph_model.LovField, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context, pagination graph_model.Pagination, usersInput *graph_model.UsersInput) (*graph_model.Users, error)
 	LovPage(ctx context.Context, pagination graph_model.Pagination, lovPageInput *graph_model.LovPageInput) (*graph_model.LovPage, error)
-	LovFields(ctx context.Context) ([]*graph_model.LovField, error)
+	FindLov(ctx context.Context, id int) (*graph_model.Lov, error)
+	LovFields(ctx context.Context, lovID int) ([]*graph_model.LovField, error)
 }
 
 type executableSchema struct {
@@ -241,12 +245,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(graph_model.CreateUser)), true
 
+	case "Mutation.deleteLov":
+		if e.complexity.Mutation.DeleteLov == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteLov_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteLov(childComplexity, args["id"].(int)), true
+
+	case "Query.findLov":
+		if e.complexity.Query.FindLov == nil {
+			break
+		}
+
+		args, err := ec.field_Query_findLov_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.FindLov(childComplexity, args["id"].(int)), true
+
 	case "Query.lovFields":
 		if e.complexity.Query.LovFields == nil {
 			break
 		}
 
-		return e.complexity.Query.LovFields(childComplexity), true
+		args, err := ec.field_Query_lovFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.LovFields(childComplexity, args["lovId"].(int)), true
 
 	case "Query.lovPage":
 		if e.complexity.Query.LovPage == nil {
@@ -532,6 +565,21 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteLov_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -544,6 +592,36 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_findLov_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_lovFields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["lovId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lovId"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lovId"] = arg0
 	return args, nil
 }
 
@@ -961,9 +1039,9 @@ func (ec *executionContext) _LovField_value(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LovField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -973,7 +1051,7 @@ func (ec *executionContext) fieldContext_LovField_value(ctx context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1263,6 +1341,61 @@ func (ec *executionContext) fieldContext_Mutation_createLov(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteLov(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteLov(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteLov(rctx, fc.Args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteLov(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteLov_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createLovField(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createLovField(ctx, field)
 	if err != nil {
@@ -1452,6 +1585,71 @@ func (ec *executionContext) fieldContext_Query_lovPage(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_findLov(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_findLov(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindLov(rctx, fc.Args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graph_model.Lov)
+	fc.Result = res
+	return ec.marshalNLov2ᚖgoᚑginᚑexampleᚋinternalᚋgraphᚋgraph_modelᚐLov(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_findLov(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Lov_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Lov_name(ctx, field)
+			case "code":
+				return ec.fieldContext_Lov_code(ctx, field)
+			case "desc":
+				return ec.fieldContext_Lov_desc(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Lov", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_findLov_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_lovFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_lovFields(ctx, field)
 	if err != nil {
@@ -1466,7 +1664,7 @@ func (ec *executionContext) _Query_lovFields(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().LovFields(rctx)
+		return ec.resolvers.Query().LovFields(rctx, fc.Args["lovId"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1504,6 +1702,17 @@ func (ec *executionContext) fieldContext_Query_lovFields(ctx context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type LovField", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_lovFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4016,7 +4225,7 @@ func (ec *executionContext) unmarshalInputCreateLovField(ctx context.Context, ob
 			it.Desc = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4397,6 +4606,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "deleteLov":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteLov(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createLovField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createLovField(ctx, field)
@@ -4478,6 +4694,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_lovPage(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "findLov":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_findLov(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

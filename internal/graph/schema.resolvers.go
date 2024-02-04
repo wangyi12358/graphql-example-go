@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"go-gin-example/internal/graph/graph_model"
 )
 
@@ -28,9 +27,22 @@ func (r *mutationResolver) CreateLov(ctx context.Context, input graph_model.Crea
 	return OfLov(lov), nil
 }
 
+// DeleteLov is the resolver for the deleteLov field.
+func (r *mutationResolver) DeleteLov(ctx context.Context, id int) (bool, error) {
+	err := r.LovService.DeleteById(int64(id))
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // CreateLovField is the resolver for the createLovField field.
 func (r *mutationResolver) CreateLovField(ctx context.Context, input graph_model.CreateLovField) (*graph_model.LovField, error) {
-	panic(fmt.Errorf("not implemented: CreateLovField - createLovField"))
+	lovField, err := r.LovFieldService.CreateLovField(&input)
+	if err != nil {
+		return nil, err
+	}
+	return OfLovField(lovField), nil
 }
 
 // Users is the resolver for the users field.
@@ -65,9 +77,22 @@ func (r *queryResolver) LovPage(ctx context.Context, pagination graph_model.Pagi
 	}, nil
 }
 
+// FindLov is the resolver for the findLov field.
+func (r *queryResolver) FindLov(ctx context.Context, id int) (*graph_model.Lov, error) {
+	lov, err := r.LovService.FindById(int64(id))
+	if err != nil {
+		return nil, err
+	}
+	return OfLov(lov), nil
+}
+
 // LovFields is the resolver for the lovFields field.
-func (r *queryResolver) LovFields(ctx context.Context) ([]*graph_model.LovField, error) {
-	panic(fmt.Errorf("not implemented: LovFields - lovFields"))
+func (r *queryResolver) LovFields(ctx context.Context, lovID int) ([]*graph_model.LovField, error) {
+	lovFields, err := r.LovFieldService.FindListByLovId(int64(lovID))
+	if err != nil {
+		return nil, err
+	}
+	return OfLovFields(lovFields), nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -45,3 +45,7 @@ func Total(input *graph_model.LovPageInput) (int64, error) {
 func Create(lov *Lov) error {
 	return model.DB.Create(lov).Error
 }
+
+func DeleteById(id int64) error {
+	return model.DB.Delete(&Lov{}, id).Error
+}

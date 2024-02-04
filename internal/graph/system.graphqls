@@ -15,7 +15,7 @@ type LovField {
   "描述"
   desc: String
   "值"
-  value: String!
+  value: Int!
   "状态"
   status: Int!
 }
@@ -49,7 +49,7 @@ input CreateLovField {
   "描述"
   desc: String
   "值"
-  value: String!
+  value: Int!
   "状态"
   status: Int!
   "lovId"

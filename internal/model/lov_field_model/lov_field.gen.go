@@ -5,6 +5,7 @@
 package lov_field_model
 
 import (
+	"go-gin-example/pkg/model"
 	"time"
 
 	"gorm.io/gorm"
@@ -28,4 +29,13 @@ type LovField struct {
 // TableName LovField's table name
 func (*LovField) TableName() string {
 	return TableNameLovField
+}
+
+func FindListByLovId(lovId int64) (*[]LovField, error)  {
+	var list []LovField
+	err := model.DB.Where("lov_id = ?", lovId).Find(&list).Error
+	if err != nil {
+		return nil, err
+	}
+	return &list, nil
 }

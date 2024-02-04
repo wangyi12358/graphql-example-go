@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"go-gin-example/internal/graph/graph_model"
+	"go-gin-example/internal/model/lov_field_model"
 	"go-gin-example/internal/model/lov_model"
 	"go-gin-example/internal/model/sys_user_model"
 	"go-gin-example/internal/service/lov"
+	"go-gin-example/internal/service/lov_field"
 	"go-gin-example/internal/service/user"
 )
 
@@ -15,8 +17,9 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	UserService user.Service
-	LovService  lov.Service
+	UserService     user.Service
+	LovService      lov.Service
+	LovFieldService lov_field.Service
 }
 
 func GinContextToContextMiddleware() gin.HandlerFunc {
@@ -65,4 +68,22 @@ func OfLovList(lovList *[]lov_model.Lov) []*graph_model.Lov {
 		list = append(list, OfLov(&lov))
 	}
 	return list
+}
+
+func OfLovField(lovField *lov_field_model.LovField) *graph_model.LovField {
+	return &graph_model.LovField{
+		ID:     int(lovField.ID),
+		Label:  lovField.Label,
+		Value:  int(lovField.Value),
+		Desc:   &lovField.Desc,
+		Status: int(lovField.Stauts),
+	}
+}
+
+func OfLovFields(lovFields *[]lov_field_model.LovField) []*graph_model.LovField {
+	var fields []*graph_model.LovField
+	for _, lovField := range *lovFields {
+		fields = append(fields, OfLovField(&lovField))
+	}
+	return fields
 }

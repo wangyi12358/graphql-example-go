@@ -24,6 +24,6 @@ $ make gen-db-model
 ## 支持的功能
 - [x] 生成数据库 Model
 - [x] Restful API
-- [ ] GraphQL API
+- [x] GraphQL API
 - [ ] 全局 panic 捕获
 - [ ] 定时任务

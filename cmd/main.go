@@ -10,6 +10,7 @@ import (
 	"go-gin-example/internal/middleware"
 	"go-gin-example/internal/router"
 	"go-gin-example/internal/service/lov"
+	"go-gin-example/internal/service/lov_field"
 	"go-gin-example/internal/service/user"
 	"go-gin-example/pkg/config"
 	"go-gin-example/pkg/model"
@@ -25,8 +26,9 @@ func graphqlHandler() gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		UserService: user.New(model.DB),
-		LovService:  lov.New(model.DB),
+		UserService:     user.New(model.DB),
+		LovService:      lov.New(model.DB),
+		LovFieldService: lov_field.New(model.DB),
 	}}))
 
 	return func(c *gin.Context) {

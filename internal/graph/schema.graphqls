@@ -8,11 +8,15 @@ input Pagination {
 type Query {
   users(pagination: Pagination!, usersInput: UsersInput): Users!
   lovPage(pagination: Pagination!, lovPageInput: LovPageInput): LovPage!
-  lovFields: [LovField!]!
+  findLov(id: Int!): Lov!
+  lovFields(lovId: Int!): [LovField!]!
 }
 
 type Mutation {
   createUser(input: CreateUser!): User!
+
   createLov(input: CreateLov!): Lov!
+  deleteLov(id: Int!): Boolean!
+
   createLovField(input: CreateLovField!): LovField!
 }
