@@ -30,6 +30,7 @@ func GenerateRandomSalt() (string, error) {
 
 func GeneratePassword(password string, user *sys_user_model.SysUser) (string, error) {
 	passwordWithSalt := password + user.Salt
+	fmt.Printf("passwordWith: %s\n", passwordWithSalt)
 	hash := md5.New()
 	_, err := io.WriteString(hash, passwordWithSalt)
 	if err != nil {

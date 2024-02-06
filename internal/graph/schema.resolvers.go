@@ -6,9 +6,22 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"go-gin-example/internal/graph/graph_model"
 	"go-gin-example/pkg/validate"
 )
+
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input graph_model.LoginInput) (*graph_model.Login, error) {
+	token, user, err := r.UserService.Login(input.Username, input.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &graph_model.Login{
+		User:  OfUser(user),
+		Token: *token,
+	}, nil
+}
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input graph_model.CreateUser) (*graph_model.User, error) {
@@ -48,6 +61,11 @@ func (r *mutationResolver) CreateLovField(ctx context.Context, input graph_model
 		return nil, err
 	}
 	return OfLovField(lovField), nil
+}
+
+// Profile is the resolver for the profile field.
+func (r *queryResolver) Profile(ctx context.Context) (*graph_model.User, error) {
+	panic(fmt.Errorf("not implemented: Profile - profile"))
 }
 
 // Users is the resolver for the users field.
@@ -104,7 +122,10 @@ func (r *queryResolver) LovFields(ctx context.Context, lovID int) ([]*graph_mode
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+func (r *Resolver) Query() QueryResolver {
+
+	return &queryResolver{r}
+}
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

@@ -8,7 +8,6 @@ import (
 
 type Handler interface {
 	Create(c *gin.Context)
-	Login(c *gin.Context)
 }
 
 type handler struct {

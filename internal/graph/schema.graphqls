@@ -3,6 +3,10 @@ directive @constraint(
   name: String,
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
+# 不需要鉴权的接口
+directive @notAuth on QUERY | MUTATION
+
+
 input Pagination {
   "页码"
   current: Int!
@@ -11,6 +15,7 @@ input Pagination {
 }
 
 type Query {
+  profile: User!
   users(pagination: Pagination!, usersInput: UsersInput): Users!
   lovPage(pagination: Pagination!, lovPageInput: LovPageInput): LovPage!
   findLov(id: Int!): Lov!
@@ -18,10 +23,9 @@ type Query {
 }
 
 type Mutation {
+  login(input: LoginInput!): Login!
   createUser(input: CreateUser!): User!
-
   createLov(input: CreateLov!): Lov!
   deleteLov(id: Int!): Boolean!
-
   createLovField(input: CreateLovField!): LovField!
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"time"
 )
 
 type Database struct {
@@ -22,7 +23,7 @@ type Server struct {
 
 type Jwt struct {
 	Secret string
-	Expire int // 过期时间、秒为单位
+	Expire time.Duration // 过期时间、秒为单位
 }
 
 type Conf struct {

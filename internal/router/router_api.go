@@ -11,6 +11,5 @@ func InitRouterApi(r *gin.Engine) {
 	rApi := r.Group("/api")
 
 	user := user_api.New(model.DB)
-	rApi.POST("/login", user.Login)
 	rApi.POST("/user", user.Create)
 }

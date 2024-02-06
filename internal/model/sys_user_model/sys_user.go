@@ -11,17 +11,28 @@ func (s *SysUser) MakeSalt() {
 	s.Salt = "123"
 }
 
-func Login(username string, password string) (*SysUser, error) {
-	var sysUser SysUser
-	err := model.DB.Where(&SysUser{
+func Login(username string, password string) error {
+	var count int64
+	err := model.DB.Model(&SysUser{}).Where(&SysUser{
 		Username: username,
 		Password: password,
-	}).First(sysUser).Error
+	}).Count(&count).Error
 	if err != nil {
-		fmt.Printf("sql error: %s\n", err.Error())
+		fmt.Println("1")
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("用户名或密码错误")
+	}
+	return nil
+}
+
+func FindByUsername(username string) (*SysUser, error) {
+	var user SysUser
+	if err := model.DB.Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
-	return &sysUser, nil
+	return &user, nil
 }
 
 func FindById(id int64) (*SysUser, error) {

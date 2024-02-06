@@ -34,6 +34,16 @@ type CreateUser struct {
 	Email    string  `json:"email" validate:"email" name:"邮箱"`
 }
 
+type Login struct {
+	User  *User  `json:"user"`
+	Token string `json:"token"`
+}
+
+type LoginInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type Lov struct {
 	ID int `json:"id"`
 	// 名称

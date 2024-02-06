@@ -98,3 +98,13 @@ input CreateUser {
   remark: String
   email: String! @constraint(validate: "email", name: "邮箱")
 }
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+type Login {
+  user: User!
+  token: String!
+}

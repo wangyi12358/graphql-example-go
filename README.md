@@ -21,6 +21,14 @@ make build-servicez
 $ make gen-db-model
 ```
 
+## Postgres 自增ID
+```sql
+CREATE SEQUENCE lov_table_id_seq START 1;
+
+ALTER TABLE lov
+ALTER COLUMN id SET DEFAULT nextval('lov_table_id_seq');
+```
+
 ## 支持的功能
 - [x] 生成数据库 Model
 - [x] Restful API
