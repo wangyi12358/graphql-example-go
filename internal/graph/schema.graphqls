@@ -3,9 +3,13 @@ directive @constraint(
   name: String,
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
-# 不需要鉴权的接口
-directive @notAuth on QUERY | MUTATION
+directive @auth(requires: Role = ADMIN) on FIELD_DEFINITION
 
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
 
 input Pagination {
   "页码"
@@ -23,7 +27,7 @@ type Query {
 }
 
 type Mutation {
-  login(input: LoginInput!): Login!
+  login(input: LoginInput!): Login! @auth(requires: GUEST)
   createUser(input: CreateUser!): User!
   createLov(input: CreateLov!): Lov!
   deleteLov(id: Int!): Boolean!

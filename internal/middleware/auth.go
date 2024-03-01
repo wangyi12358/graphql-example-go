@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go-gin-example/internal/model/sys_user_model"
-	"net/http"
+	"go-gin-example/pkg/token"
 )
 
 var userCtxKey = "user"
@@ -20,14 +21,17 @@ func (r *GraphqlResponse) NewError(message string) {
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("authorization")
+		tokenStr := c.GetHeader("authorization")
 		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
 		c.Request = c.Request.WithContext(ctx)
-		res := GraphqlResponse{}
-		if token == "" {
-			res.NewError("Unauthorized")
-			c.AbortWithStatusJSON(http.StatusUnauthorized, res)
-			return
+		if tokenStr != "" {
+			id, _ := token.ParseToken(tokenStr)
+			fmt.Printf("id: %d", id)
+			if id != nil {
+				user, _ := sys_user_model.FindById(*id)
+				fmt.Printf("id: %d", user.ID)
+				c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), userCtxKey, user))
+			}
 		}
 		c.Next()
 	}

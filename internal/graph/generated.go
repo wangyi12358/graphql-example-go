@@ -44,6 +44,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth       func(ctx context.Context, obj interface{}, next graphql.Resolver, requires *graph_model.Role) (res interface{}, err error)
 	Constraint func(ctx context.Context, obj interface{}, next graphql.Resolver, validate *string, name *string) (res interface{}, err error)
 }
 
@@ -563,6 +564,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_auth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *graph_model.Role
+	if tmp, ok := rawArgs["requires"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requires"))
+		arg0, err = ec.unmarshalORole2ᚖgoᚑginᚑexampleᚋinternalᚋgraphᚋgraph_modelᚐRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["requires"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) dir_constraint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1405,8 +1421,32 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, fc.Args["input"].(graph_model.LoginInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().Login(rctx, fc.Args["input"].(graph_model.LoginInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			requires, err := ec.unmarshalORole2ᚖgoᚑginᚑexampleᚋinternalᚋgraphᚋgraph_modelᚐRole(ctx, "GUEST")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0, requires)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*graph_model.Login); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *go-gin-example/internal/graph/graph_model.Login`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6260,6 +6300,22 @@ func (ec *executionContext) unmarshalOLovPageInput2ᚖgoᚑginᚑexampleᚋinter
 	}
 	res, err := ec.unmarshalInputLovPageInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORole2ᚖgoᚑginᚑexampleᚋinternalᚋgraphᚋgraph_modelᚐRole(ctx context.Context, v interface{}) (*graph_model.Role, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(graph_model.Role)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalORole2ᚖgoᚑginᚑexampleᚋinternalᚋgraphᚋgraph_modelᚐRole(ctx context.Context, sel ast.SelectionSet, v *graph_model.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

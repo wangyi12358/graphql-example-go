@@ -34,6 +34,7 @@ func ParseToken(token string) (*int64, error) {
 	})
 
 	if claims, ok := t.Claims.(*UserClaims); ok && t.Valid {
+
 		return &claims.id, nil
 	} else {
 		return nil, err
